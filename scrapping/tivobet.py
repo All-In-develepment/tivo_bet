@@ -75,7 +75,10 @@ def main():
         # Inicia o navegador
         browser = p.firefox.launch(headless=False)
         page = browser.new_page()
-        page.goto("https://vgpclive-vs001.akamaized.net/virtualsport/stable/dist/entryPoints/vwmfTSUOF.html?product=vwmf1&sport=vwmf&client_id=3586&language=br")
+        try:
+            page.goto("https://vgpclive-vs001.akamaized.net/virtualsport/stable/dist/entryPoints/vwmfTSUOF.html?product=vwmf1&sport=vwmf&client_id=3586&language=br")
+        except Exception as e:
+            print(f"Erro ao abrir a página: {e}")
         
         # Aguarda a página carregar
         abrir_pagina_resultados(page)
