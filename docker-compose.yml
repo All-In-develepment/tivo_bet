@@ -1,0 +1,57 @@
+services:
+  backend:
+    container_name: backend
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - mssql
+    environment:
+      TZ: America/Sao_Paulo
+    # command: sleep infinity
+    ports:
+      - "8080:8080"
+    # volumes:
+    #   - .:/app
+    networks:
+      - result-scores
+  
+  mssql:
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    container_name: mssql
+    restart: always
+    environment:
+      SA_PASSWORD: "Password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes: 
+      - mssql:/var/opt/mssql
+    networks:
+      - result-scores
+  
+  scrapping:
+    container_name: scrapping
+    build:
+      context: ./scrapping
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      TZ: America/Sao_Paulo
+    # command: sleep infinity
+    # ports:
+    #   - "8081:8081"
+    # volumes:
+    #   - .:/app
+    networks:
+      - result-scores
+
+networks:
+  result-scores:
+    driver: bridge
+
+volumes:
+  mssql:

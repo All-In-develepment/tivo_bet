@@ -1,1 +1,6 @@
 venv*/
+bin/
+Bin/
+obj/
+Obj/
+__pycache__/

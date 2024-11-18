@@ -1,5 +1,7 @@
 from playwright.sync_api import sync_playwright
 import time
+from games.games_tivo_bet import get_game_by_id, insert_game
+
 def coletar_resultados(page, liga_nome):
     print(f"\n--- Coletando resultados para a Liga {liga_nome} ---")
     total_partidas = 1
@@ -27,13 +29,34 @@ def coletar_resultados(page, liga_nome):
             # Data e Hora
             datetime_selector = f"#results-details > div.results > div > div > div > div > div:nth-child({total_partidas}) > div.date > div.date-time"
             datetime = page.locator(datetime_selector).inner_text()
+            game_date = datetime.split(". ")[0]
+            game_time = datetime.split(". ")[1]
             
             # Imprime as informações da partida
             print(f"Partida {total_partidas}: {time_a} vs {time_b}")
             print(f"  - ID: {match_id}")
-            print(f"  - Data e Hora: {datetime}")
+            print(f"  - Data: {game_date}")
+            print(f"  - Hora: {game_time}")
             print(f"  - Resultado 1º Tempo: {resultado_primeiro_tempo}")
             print(f"  - Resultado Final: {resultado_final.strip()}\n")
+            
+            has_game = get_game_by_id(match_id)
+            
+            resultado_final = resultado_final.strip()
+            if not has_game:
+                game = {
+                    "GameId": match_id,
+                    "League": liga_nome,
+                    "HomeTeam": time_a,
+                    "AwayTeam": time_b,
+                    "GameDate": game_date,
+                    "GameTime": game_time,
+                    "HalfTimeScore": resultado_primeiro_tempo,
+                    "FullTimeScore": resultado_final.strip(),
+                    "AwayScore": resultado_final.split(":")[1],
+                    "HomeScore": resultado_final.split(":")[0]
+                }
+                insert_game(game)
         
         except Exception as e:
             print(f"Erro ao processar a partida {total_partidas}: {e}")
@@ -76,4 +99,6 @@ def main():
         browser.close()
 
 if __name__ == "__main__":
-    main()
+    while True:
+        main()
+        time.sleep(60)
